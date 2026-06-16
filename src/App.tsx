@@ -1,9 +1,9 @@
-import ScribbleToolbar from "./components/custom/scribble-toolbar";
+import DrawingWrapper from "./components/custom/DrawingWrapper";
 
 export default function App() {
   return (
     <section>
-      <ScribbleToolbar />
+      <DrawingWrapper />
     </section>
   );
 }

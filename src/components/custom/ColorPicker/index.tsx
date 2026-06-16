@@ -1,29 +1,26 @@
-import { Colorful } from "@uiw/react-color";
-import ColorWheelImg from "@/assets/icons/color-wheel.svg";
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useDrawing } from "@/store/useDrawing";
 
 type ColorPickerProps = {
   color: string;
-  setColor: Dispatch<SetStateAction<string>>;
+  setColor: (color: string) => void;
 };
 
 export default function ColorPicker({ color, setColor }: ColorPickerProps) {
-  const [open, setOpen] = useState(false);
-
+  const { color: activeColor } = useDrawing();
   return (
-    <div className="relative flex items-center">
+    <div
+      className="relative flex items-center rounded-full"
+      style={{
+        border: color === activeColor ? `2px solid ${color}` : "1px solid transparent",
+      }}
+    >
       <button
-        className="hover:scale-120 transition-all ease-in duration-10"
-        onClick={() => setOpen((prev) => !prev)}
-      >
-        <img src={ColorWheelImg} alt="color wheel img" className="w-6.5" />
-      </button>
-
-      {open && (
-        <div className="absolute top-10 left-1/2 -translate-x-1/2">
-          <Colorful color={color} onChange={(color) => setColor(color.hex)} />
-        </div>
-      )}
+        className="w-8 h-8 rounded-full border hover:scale-105 transition-all ease-in duration-10"
+        style={{
+          background: color,
+        }}
+        onClick={() => setColor(color)}
+      />
     </div>
   );
 }
