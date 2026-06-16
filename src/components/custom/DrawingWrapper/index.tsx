@@ -1,6 +1,6 @@
 import ScribbleToolbar from "../ScribbleToolbar";
 import { useDrawing } from "@/store/useDrawing";
-import { useRef, useEffect, type MouseEvent } from "react";
+import { useRef, useEffect, type MouseEvent, useCallback } from "react";
 import DrawingCanvas from "../DrawingCanvas";
 
 type Point = { x: number; y: number };
@@ -14,6 +14,7 @@ export default function DrawingWrapper() {
   const { color, brushSize, eraserSize, mode } = useDrawing();
 
   const snapshots = useRef<ImageData[]>([]);
+  const redoStack = useRef<ImageData[]>([]);
 
   const getCtx = () => {
     const canvas = canvasRef.current;
@@ -32,15 +33,32 @@ export default function DrawingWrapper() {
     const ctx = getCtx();
     const canvas = canvasRef.current;
     if (!ctx || !canvas) return;
+
     snapshots.current.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    redoStack.current = [];
     if (snapshots.current.length > 50) snapshots.current.shift();
   };
 
-  const undo = () => {
+  const undo = useCallback(() => {
     const ctx = getCtx();
     const canvas = canvasRef.current;
     if (!ctx || !canvas || snapshots.current.length === 0) return;
+
+    redoStack.current.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+
     const snap = snapshots.current.pop()!;
+    ctx.putImageData(snap, 0, 0);
+  }, []);
+
+  const redo = () => {
+    const ctx = getCtx();
+    const canvas = canvasRef.current;
+
+    if (!ctx || !canvas || redoStack.current.length === 0) return;
+
+    snapshots.current.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+
+    const snap = redoStack.current.pop()!;
     ctx.putImageData(snap, 0, 0);
   };
 
@@ -126,11 +144,11 @@ export default function DrawingWrapper() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [undo]);
 
   return (
     <>
-      <ScribbleToolbar clearScribble={clearCanvas} undo={undo} />
+      <ScribbleToolbar clearScribble={clearCanvas} undo={undo} redo={redo} />
       <DrawingCanvas
         ref={canvasRef}
         handleMouseDown={handleMouseDown}

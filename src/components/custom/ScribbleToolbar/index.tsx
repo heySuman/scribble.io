@@ -1,15 +1,17 @@
 import { useDrawing } from "@/store/useDrawing";
 import { Slider } from "@/components/ui/slider";
-import { Eraser, Pencil, Trash2, Undo } from "lucide-react";
+import { Eraser, Pencil, Redo, Trash2, Undo } from "lucide-react";
 
 type ScribbleToolbarProps = {
   clearScribble: () => void;
   undo: () => void;
+  redo: () => void;
 };
 
 export default function ScribbleToolbar({
   clearScribble,
   undo,
+  redo,
 }: ScribbleToolbarProps) {
   const {
     color: activeColor,
@@ -63,6 +65,10 @@ export default function ScribbleToolbar({
 
       <div onClick={undo}>
         <Undo />
+      </div>
+
+      <div onClick={redo}>
+        <Redo />
       </div>
 
       <div onClick={clearScribble}>
